@@ -1,36 +1,56 @@
 package javamodularity.easytext.gui;
+import java.util.ArrayList;
+import java.util.List;
+
+import javafx.application.Application;
+import javafx.event.*;
+import javafx.geometry.*;
+import javafx.scene.*;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
 
 import javamodularity.easytext.analysis.FleschKincaid;
 
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.List;
-public class Main
-{
-    public Main(){
-        JFrame frame= new JFrame();
-        DefaultListModel<String> listModel = new DefaultListModel<>();
-        listModel.addElement("FleschKincaid");
-        JList<String> list = new JList<>(listModel);
-        list.setBounds(100,100, 75,75);
-        frame.setSize(400,400);
-        frame.setLayout(null);
-        frame.setVisible(true);
-        frame.add(new JLabel("Select the Algorithm:"));
-        frame.add(list);
-        JButton btnSubmit = new JButton("Submit");
-        btnSubmit.addActionListener(e -> {
+public class Main extends Application {
 
-        });
-    }
-
-
-
+    private static ComboBox<String> algorithm;
+    private static TextArea input;
+    private static Text output;
 
     public static void main(String[] args) {
-        new Main();
+        Application.launch(args);
+    }
+
+    @Override
+    public void start(Stage primaryStage) {
+        primaryStage.setTitle("EasyText");
+        Button btn = new Button();
+        btn.setText("Calculate");
+        btn.setOnAction(event ->
+                output.setText(analyze(input.getText(), (String) algorithm.getValue()))
+        );
+
+        VBox vbox = new VBox();
+        vbox.setPadding(new Insets(3));
+        vbox.setSpacing(3);
+        Text title = new Text("Choose an algorithm:");
+        algorithm = new ComboBox<>();
+        algorithm.getItems().add("Flesch-Kincaid");
+
+        vbox.getChildren().add(title);
+        vbox.getChildren().add(algorithm);
+        vbox.getChildren().add(btn);
+
+        input = new TextArea();
+        output = new Text();
+        BorderPane pane = new BorderPane();
+        pane.setRight(vbox);
+        pane.setCenter(input);
+        pane.setBottom(output);
+        primaryStage.setScene(new Scene(pane, 300, 250));
+        primaryStage.show();
     }
 
     private String analyze(String input, String algorithm) {
@@ -40,29 +60,29 @@ public class Main
     }
 
 
-   public static List<List<String>> toSentences(String text) {
-      String removedBreaks = text.replaceAll("\\r?\\n", " ");
-      ArrayList<List<String>> sentences = new ArrayList<>();
-      for(String rawSentence: removedBreaks.split("[\\.\\?\\!]")) {
-         List<String> words = toWords(rawSentence);
-         if(words.size() > 0) {
-            sentences.add(words);
-         }
-      }
+    public static List<List<String>> toSentences(String text) {
+        String removedBreaks = text.replaceAll("\\r?\\n", " ");
+        ArrayList<List<String>> sentences = new ArrayList<>();
+        for(String rawSentence: removedBreaks.split("[\\.\\?\\!]")) {
+            List<String> words = toWords(rawSentence);
+            if(words.size() > 0) {
+                sentences.add(words);
+            }
+        }
 
-      return sentences;
-   }
+        return sentences;
+    }
 
-   public static List<String> toWords(String sentence) {
-      String[] rawWords = sentence.split("\\s+");
-      List<String> words = new ArrayList<>();
-      for(String rawWord: rawWords) {
-         String word = rawWord.replaceAll("\\W", "");
-         if(word.length() > 0) {
-            words.add(word);
-         }
-      }
+    public static List<String> toWords(String sentence) {
+        String[] rawWords = sentence.split("\\s+");
+        List<String> words = new ArrayList<>();
+        for(String rawWord: rawWords) {
+            String word = rawWord.replaceAll("\\W", "");
+            if(word.length() > 0) {
+                words.add(word);
+            }
+        }
 
-      return words;
-   }
+        return words;
+    }
 }
